@@ -284,7 +284,7 @@ namespace Assets.Serialization
             SkipWhitespace();
 
             // You've got the id # of the object.  Are we done now?
-            throw new NotImplementedException("Fill me in");
+            if (idTable.ContainsKey(id)) { return idTable[id]; }
 
             // Assuming we aren't done, let's check to make sure there's a { next
             SkipWhitespace();
@@ -306,14 +306,18 @@ namespace Assets.Serialization
                     $"Expected a type name (a string) in 'type: ...' expression for object id {id}, but instead got {typeName}");
 
             // Great!  Now what?
-            throw new NotImplementedException("Fill me in");
+            // We know the type of the object, we need to initialize it!
+            object decodedObject = Utilities.MakeInstance(type);
+            // Store the object in the idTable Dictionary
+            idTable.Add(id, decodedObject);
 
             // Read the fields until we run out of them
             while (!End && PeekChar != '}')
             {
                 var (field, value) = ReadField(id);
                 // We've got a field and a value.  Now what?
-                throw new NotImplementedException("Fill me in");
+                // Give each field the corresponding value.
+                Utilities.SetFieldByName(decodedObject, field, value);
             }
 
             if (End)
@@ -322,7 +326,8 @@ namespace Assets.Serialization
             GetChar();  // Swallow close bracket
 
             // We're done.  Now what?
-            throw new NotImplementedException("Fill me in");
+            // Return the read object
+            return decodedObject;
         }
 
     }

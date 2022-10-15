@@ -190,28 +190,30 @@ namespace Assets.Serialization
             switch (o)
             {
                 case null:
-                    throw new NotImplementedException("Fill me in");
+                    Write("null");
                     break;
 
                 case int i:
-                    throw new NotImplementedException("Fill me in");
+                    Write(i);
                     break;
 
                 case float f:
-                    throw new NotImplementedException("Fill me in");
+                    Write(f);
                     break;
 
-                // Not: don't worry about handling strings that contain quote marks
+                // Note: don't worry about handling strings that contain quote marks
                 case string s:
-                    throw new NotImplementedException("Fill me in");
+                    Writer.Write('"');
+                    Write(s);
+                    Writer.Write('"');
                     break;
 
                 case bool b:
-                    throw new NotImplementedException("Fill me in");
+                    Write(b);
                     break;
 
                 case IList list:
-                    throw new NotImplementedException("Fill me in");
+                    WriteList(list);
                     break;
 
                 default:
@@ -231,7 +233,27 @@ namespace Assets.Serialization
         /// <param name="o">Object to serialize</param>
         private void WriteComplexObject(object o)
         {
-            throw new NotImplementedException("Fill me in");
+            var (id, isNew) = GetId(o);
+            if (isNew)
+            {
+                Write($"#{id}");
+                WriteBracketedExpression(
+                    "{ ",
+                    () =>
+                    {
+                        var attributes = Utilities.SerializedFields(o);
+                        WriteField("type", o.GetType().Name, true);
+                        foreach (var (fieldName, value) in attributes)
+                        {
+                            WriteField(fieldName, value, false);
+                        };
+                    },
+                    " }");
+            }
+            else
+            {
+                Write($"#{id}");
+            }
         }
     }
 }
